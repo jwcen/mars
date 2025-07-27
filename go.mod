@@ -3,6 +3,11 @@ module github.com/jwcen/mars
 go 1.24.4
 
 require (
+	github.com/go-playground/assert/v2 v2.2.0
+	github.com/golang/mock v1.6.0
+)
+
+require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/bytedance/sonic v1.12.2 // indirect
 	github.com/bytedance/sonic/loader v0.2.0 // indirect
