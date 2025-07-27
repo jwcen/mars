@@ -21,7 +21,6 @@ func TestUserSrevice_Signup(t *testing.T) {
 		{
 			name: "注册成功",
 			user: &domain.User{
-				UserId:   "123",
 				Email:    "123@qq.com",
 				Password: "admin123",
 			},

@@ -24,14 +24,12 @@ func TestUserInfoRepository_Create(t *testing.T) {
 			name: "创建成功！",
 			ctx:  context.Background(),
 			user: &domain.User{
-				UserId:   "123",
 				Email:    "123@qq.com",
 				Password: "admin123",
 			},
 			mock: func(c *gomock.Controller) dao.UserDao {
 				daoDao := daomocks.NewMockUserDao(c)
 				daoDao.EXPECT().Insert(gomock.Any(), &model.UserM{
-					UserId:   "123",
 					Email:    "123@qq.com",
 					Password: "admin123",
 				}).Return(nil)

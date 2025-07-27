@@ -5,10 +5,10 @@ services:
     image: mysql:8.0.25
     command: --default_authentication_plugin=mysql_native_password
     environment:
-      MYSQL_ROOT_PASSWORD: your_password
+      MYSQL_ROOT_PASSWORD: root
     volumes:
       # 设置初始化脚本
-     - ./scripts/mysql/user.sql:docker-entrypoint-initdb.d
+     - /Users/jcen/projects/mars/scripts/mysql/user.sql:/docker-entrypoint-initdb.d/user.sql
     ports:
       # 映射 13316端口
       - "13316:3306"

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"net/http"
 
 	regexp "github.com/dlclark/regexp2"
@@ -60,7 +59,7 @@ func (u *UserHandler) SignUp(ctx *gin.Context) {
 		Email:    info.Email,
 		Password: info.Password,
 	})
-	if err == errors.New("用户已存在") {
+	if err != nil && err.Error() == "用户已存在" {
 		ctx.String(http.StatusBadRequest, "重复邮箱，请更换邮箱！")
 		return
 	}

@@ -25,7 +25,6 @@ func NewUserInfoRepository(dao dao.UserDao) UserRepository {
 func (ur *UserInfoRepository) Create(ctx context.Context, u *domain.User) error {
 	return ur.dao.Insert(ctx, &model.UserM{
 		Id:        u.Id,
-		UserId:    u.UserId,
 		Email:     u.Email,
 		Password:  u.Password,
 		CreatedAt: u.CreatedAt,

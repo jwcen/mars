@@ -2,6 +2,6 @@ package config
 
 var Config = WebookConfig{
 	DB: DBConfig{
-		DSN: "root:root@tcp(localhost:13316)/mars",
+		DSN: "root:123456@tcp(localhost:33060)/mars",
 	},
 }
