@@ -35,8 +35,38 @@ func (m *MockUserAndService) EXPECT() *MockUserAndServiceMockRecorder {
 	return m.recorder
 }
 
+// FindOrCreate mocks base method.
+func (m *MockUserAndService) FindOrCreate(ctx context.Context, phone string) (domain.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindOrCreate", ctx, phone)
+	ret0, _ := ret[0].(domain.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindOrCreate indicates an expected call of FindOrCreate.
+func (mr *MockUserAndServiceMockRecorder) FindOrCreate(ctx, phone interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOrCreate", reflect.TypeOf((*MockUserAndService)(nil).FindOrCreate), ctx, phone)
+}
+
+// Login mocks base method.
+func (m *MockUserAndService) Login(ctx context.Context, email, password string) (domain.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Login", ctx, email, password)
+	ret0, _ := ret[0].(domain.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Login indicates an expected call of Login.
+func (mr *MockUserAndServiceMockRecorder) Login(ctx, email, password interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockUserAndService)(nil).Login), ctx, email, password)
+}
+
 // Signup mocks base method.
-func (m *MockUserAndService) Signup(ctx context.Context, u *domain.User) error {
+func (m *MockUserAndService) Signup(ctx context.Context, u domain.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Signup", ctx, u)
 	ret0, _ := ret[0].(error)

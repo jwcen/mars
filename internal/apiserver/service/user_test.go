@@ -15,12 +15,12 @@ func TestUserSrevice_Signup(t *testing.T) {
 	testCases := []struct {
 		name    string
 		mock    func(*gomock.Controller) repository.UserRepository
-		user    *domain.User
+		user    domain.User
 		wantErr error
 	}{
 		{
 			name: "注册成功",
-			user: &domain.User{
+			user: domain.User{
 				Email:    "123@qq.com",
 				Password: "admin123",
 			},

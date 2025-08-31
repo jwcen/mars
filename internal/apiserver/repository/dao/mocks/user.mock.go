@@ -35,8 +35,38 @@ func (m *MockUserDao) EXPECT() *MockUserDaoMockRecorder {
 	return m.recorder
 }
 
+// FindByEmail mocks base method.
+func (m *MockUserDao) FindByEmail(ctx context.Context, email string) (model.UserM, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByEmail", ctx, email)
+	ret0, _ := ret[0].(model.UserM)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByEmail indicates an expected call of FindByEmail.
+func (mr *MockUserDaoMockRecorder) FindByEmail(ctx, email interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByEmail", reflect.TypeOf((*MockUserDao)(nil).FindByEmail), ctx, email)
+}
+
+// FindByPhone mocks base method.
+func (m *MockUserDao) FindByPhone(ctx context.Context, phone string) (model.UserM, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByPhone", ctx, phone)
+	ret0, _ := ret[0].(model.UserM)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByPhone indicates an expected call of FindByPhone.
+func (mr *MockUserDaoMockRecorder) FindByPhone(ctx, phone interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByPhone", reflect.TypeOf((*MockUserDao)(nil).FindByPhone), ctx, phone)
+}
+
 // Insert mocks base method.
-func (m *MockUserDao) Insert(ctx context.Context, u *model.UserM) error {
+func (m *MockUserDao) Insert(ctx context.Context, u model.UserM) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Insert", ctx, u)
 	ret0, _ := ret[0].(error)

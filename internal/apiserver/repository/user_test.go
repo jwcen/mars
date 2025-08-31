@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -17,20 +18,22 @@ func TestUserInfoRepository_Create(t *testing.T) {
 		name    string
 		mock    func(*gomock.Controller) dao.UserDao
 		ctx     context.Context
-		user    *domain.User
+		user    domain.User
 		wantErr error
 	}{
 		{
 			name: "创建成功！",
 			ctx:  context.Background(),
-			user: &domain.User{
+			user: domain.User{
 				Email:    "123@qq.com",
 				Password: "admin123",
 			},
 			mock: func(c *gomock.Controller) dao.UserDao {
 				daoDao := daomocks.NewMockUserDao(c)
 				daoDao.EXPECT().Insert(gomock.Any(), &model.UserM{
-					Email:    "123@qq.com",
+					Email:    sql.NullString{
+						String: "test@gmail.com",
+					},
 					Password: "admin123",
 				}).Return(nil)
 				return daoDao

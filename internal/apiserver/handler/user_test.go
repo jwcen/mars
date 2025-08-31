@@ -52,7 +52,7 @@ func TestUserHandler_Signup(t *testing.T) {
 			defer ctrl.Finish()
 
 			r := gin.Default()
-			uh := NewUserHandler(tc.mock(ctrl))
+			uh := NewUserHandler(tc.mock(ctrl), nil)
 			uh.RegisterRoutes(r)
 
 			req, err := http.NewRequest(http.MethodPost, "/users/signup", bytes.NewBuffer([]byte(tc.body)))

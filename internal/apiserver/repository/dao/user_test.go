@@ -19,7 +19,7 @@ func TestUserDao_Insert(t *testing.T) {
 	testCases := []struct {
 		name    string
 		ctx     context.Context
-		user    *model.UserM
+		user    model.UserM
 		mock    func(t *testing.T) *sql.DB
 		wantErr error
 	}{
@@ -35,7 +35,7 @@ func TestUserDao_Insert(t *testing.T) {
 					})
 				return mockDB
 			},
-			user:    &model.UserM{},
+			user:    model.UserM{},
 			wantErr: errors.New("用户已存在"),
 		},
 		{
@@ -48,7 +48,7 @@ func TestUserDao_Insert(t *testing.T) {
 					WillReturnError(errors.New("数据库错误！"))
 				return mockDB
 			},
-			user:    &model.UserM{},
+			user:    model.UserM{},
 			wantErr: errors.New("数据库错误！"),
 		},
 		{
@@ -65,8 +65,10 @@ func TestUserDao_Insert(t *testing.T) {
 				//mock.ExpectQuery()
 				return mockDB
 			},
-			user: &model.UserM{
-				Email: "test@gmail.com",
+			user: model.UserM{
+				Email: sql.NullString{
+					String: "test@gmail.com",
+				},
 			},
 			wantErr: nil,
 		},
@@ -85,7 +87,7 @@ func TestUserDao_Insert(t *testing.T) {
 				// 如果为 false ，则即使是单一语句，也会开启事务
 				SkipDefaultTransaction: true,
 			})
-			
+
 			d := NewUserDao(db)
 			err = d.Insert(tc.ctx, tc.user)
 			assert.Equal(t, tc.wantErr, err)
