@@ -45,7 +45,7 @@ func TestUserInfoRepository_Create(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
-			userDao := NewUserInfoRepository(tc.mock(ctrl))
+			userDao := NewUserInfoRepository(tc.mock(ctrl), nil)
 			err := userDao.Create(tc.ctx, tc.user)
 			assert.Equal(t, tc.wantErr, err)
 		})

@@ -5,6 +5,7 @@ var Config = WebookConfig{
 		DSN: "root:123456@tcp(localhost:33060)/mars?parseTime=true",
 	},
 	Redis: RedisConfig{
-		Addr: "redis://localhost:6379",
+		Addr: "localhost:16379",
+		Password: "",
 	},
 }

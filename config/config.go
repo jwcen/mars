@@ -1,7 +1,7 @@
 package config
 
 type WebookConfig struct {
-	DB DBConfig
+	DB    DBConfig
 	Redis RedisConfig
 }
 
@@ -10,5 +10,6 @@ type DBConfig struct {
 }
 
 type RedisConfig struct {
-	Addr string
+	Addr     string
+	Password string
 }

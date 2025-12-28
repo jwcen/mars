@@ -4,10 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	isms "github.com/jwcen/mars/internal/apiserver/service/sms"
 	"github.com/ecodeclub/ekit"
 	"github.com/ecodeclub/ekit/slice"
-	"github.com/jwcen/mars/pkg/ratelimit"
+	isms "github.com/jwcen/mars/internal/apiserver/service/sms"
 	sms "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms/v20210111"
 	"go.uber.org/zap"
 )
@@ -16,16 +15,13 @@ type Service struct {
 	appId    *string
 	signName *string
 	client   *sms.Client
-	limiter  ratelimit.Limiter
 }
 
-func NewService(client *sms.Client, appId string,
-	signName string, limiter ratelimit.Limiter) *Service {
+func NewService(client *sms.Client, appId string, signName string) *Service {
 	return &Service{
 		client:   client,
 		appId:    ekit.ToPtr[string](appId),
 		signName: ekit.ToPtr[string](signName),
-		limiter:  limiter,
 	}
 }
 

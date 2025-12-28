@@ -7,6 +7,7 @@ import (
 
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/jwcen/mars/internal/apiserver/domain"
 	ijwt "github.com/jwcen/mars/internal/apiserver/handler/jwt"
 	"github.com/jwcen/mars/internal/apiserver/service"
@@ -50,17 +51,26 @@ func (u *UserHandler) SignUp(ctx *gin.Context) {
 
 	//密码和确认密码
 	if info.Password != info.ConfirmPassword {
-		ctx.String(http.StatusBadRequest, "两次密码不相同！")
+		ctx.JSON(http.StatusOK, Result{
+			Code: 4,
+			Msg:  "两次密码不相同！",
+		})
 		return
 	}
 	//密码规律
 	pwdFlag, err := u.passwordRegexExp.MatchString(info.Password)
 	if err != nil {
-		ctx.String(http.StatusInternalServerError, "系统错误！")
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误！",
+		})
 		return
 	}
 	if !pwdFlag {
-		ctx.String(http.StatusBadRequest, "密码格式不正确,长度不能小于 6 位！")
+		ctx.JSON(http.StatusOK, Result{
+			Code: 4,
+			Msg:  "密码格式不正确,长度不能小于 6 位！",
+		})
 		return
 	}
 
@@ -70,14 +80,23 @@ func (u *UserHandler) SignUp(ctx *gin.Context) {
 		Password: info.Password,
 	})
 	if err != nil && err.Error() == "用户已存在" {
-		ctx.String(http.StatusBadRequest, "重复邮箱，请更换邮箱！")
+		ctx.JSON(http.StatusOK, Result{
+			Code: 4,
+			Msg:  "重复邮箱，请更换邮箱！",
+		})
 		return
 	}
 	if err != nil {
-		ctx.String(http.StatusInternalServerError, "系统错误！")
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误！",
+		})
 		return
 	}
-	ctx.String(http.StatusOK, "注册成功！")
+	ctx.JSON(http.StatusOK, Result{
+		Code: 0,
+		Msg:  "注册成功！",
+	})
 }
 
 func (u *UserHandler) Login(ctx *gin.Context) {
@@ -92,20 +111,31 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 	}
 	user, err := u.svc.Login(ctx, req.Email, req.Password)
 	if err == service.ErrInvalidUserOrPassword {
-		ctx.String(http.StatusOK, "用户名或密码不对")
+		ctx.JSON(http.StatusOK, Result{
+			Code: 4,
+			Msg:  "用户名或密码不对",
+		})
 		return
 	}
 	if err != nil {
-		ctx.String(http.StatusOK, "系统错误")
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
 		return
 	}
 
 	if err = u.SetLoginToken(ctx, user.Id); err != nil {
-		ctx.String(http.StatusOK, "系统错误")
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
 		return
 	}
 
-	ctx.String(http.StatusOK, "登录成功")
+	ctx.JSON(http.StatusOK, Result{
+		Msg: "登录成功",
+	})
 }
 
 func (u *UserHandler) Logout(ctx *gin.Context) {
@@ -118,7 +148,8 @@ func (u *UserHandler) Logout(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, Result{
-		Msg: "退出登录OK",
+		Code: 0,
+		Msg:  "退出登录OK",
 	})
 }
 
@@ -128,11 +159,21 @@ func (u *UserHandler) Profile(ctx *gin.Context) {
 	claim, ok := c.(ijwt.UserClaims)
 	if !ok {
 		// 你可以考虑监控住这里
-		ctx.String(http.StatusOK, "系统错误")
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
 		return
 	}
 	fmt.Println(claim.Id)
-	ctx.String(http.StatusOK, "profile")
+
+	ctx.JSON(http.StatusOK, Result{
+		Code: 0,
+		Msg:  "获取用户信息成功",
+		Data: map[string]interface{}{
+			"id": claim.Id,
+		},
+	})
 }
 
 func (u *UserHandler) SendLoginSMSCode(ctx *gin.Context) {
@@ -164,19 +205,21 @@ func (u *UserHandler) SendLoginSMSCode(ctx *gin.Context) {
 	switch err {
 	case nil:
 		ctx.JSON(http.StatusOK, Result{
-			Msg: "发送成功",
+			Code: 0,
+			Msg:  "发送成功",
 		})
 	case service.ErrCodeSendTooMany:
 		zap.L().Warn("短信发送太频繁", zap.Error(err))
 		ctx.JSON(http.StatusOK, Result{
-			Msg: "发送太频繁，请稍后再试",
+			Code: 4,
+			Msg:  "发送太频繁，请稍后再试",
 		})
 	default:
 		zap.L().Error("短信发送失败",
 			zap.Error(err))
 		ctx.JSON(http.StatusOK, Result{
 			Code: 5,
-			Msg:  "系统错误",
+			Msg:  "发送失败",
 		})
 	}
 }
@@ -202,7 +245,7 @@ func (u *UserHandler) LoginSMS(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusOK, Result{
 			Code: 5,
-			Msg:  "系统错误",
+			Msg:  "校验验证码出错",
 		})
 		zap.L().Error("校验验证码出错", zap.Error(err),
 			// 不能这样打，因为手机号码是敏感数据，你不能达到日志里面
@@ -241,6 +284,15 @@ func (u *UserHandler) LoginSMS(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, Result{
-		Msg: "验证码校验通过",
+		Code: 0,
+		Msg:  "验证码校验通过",
 	})
+}
+
+type UserClaims struct {
+	jwt.RegisteredClaims
+	// 声明你自己的要放进去 token 里面的数据
+	Uid int64
+	// 自己随便加
+	UserAgent string
 }

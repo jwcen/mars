@@ -11,4 +11,13 @@ services:
      - /Users/jcen/projects/mars/scripts/mysql/user.sql:/docker-entrypoint-initdb.d/user.sql
     ports:
       # 映射 13316端口
-      - "13316:3306"
+      - "33060:3306"
+  redis:
+    image: redis:7.0.0
+    ports:
+      - "16379:6379"
+    environment:
+      - REDIS_PASSWORD=123456
+    volumes:
+      - /Users/jcen/projects/mars/scripts/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf

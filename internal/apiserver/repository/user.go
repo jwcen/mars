@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/jwcen/mars/internal/apiserver/domain"
+	"github.com/jwcen/mars/internal/apiserver/repository/cache"
 	"github.com/jwcen/mars/internal/apiserver/repository/dao"
 	"github.com/jwcen/mars/internal/apiserver/repository/model"
 )
@@ -23,12 +24,14 @@ type UserRepository interface {
 }
 
 type UserInfoRepository struct {
-	dao dao.UserDao
+	dao   dao.UserDao
+	cache cache.UserCache
 }
 
-func NewUserInfoRepository(dao dao.UserDao) UserRepository {
+func NewUserInfoRepository(dao dao.UserDao, cache cache.UserCache) UserRepository {
 	return &UserInfoRepository{
 		dao: dao,
+		cache: cache,
 	}
 }
 
