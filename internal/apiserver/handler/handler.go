@@ -1,6 +1,8 @@
 package handler
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func (u *UserHandler) RegisterRoutes(server *gin.Engine) {
 	apiv1 := server.Group("/api/v1")
@@ -13,5 +15,13 @@ func (u *UserHandler) RegisterRoutes(server *gin.Engine) {
 
 		ug.POST("/login_sms/code/send", u.SendLoginSMSCode)
 		ug.POST("/login_sms", u.LoginSMS)
+	}
+}
+
+func (a *ArticleHandler) RegisterRoutes(server *gin.Engine) {
+	apiv1 := server.Group("/api/v1")
+	ag := apiv1.Group("/articles")
+	{
+		ag.POST("/edit", a.Edit)
 	}
 }

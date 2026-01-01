@@ -4,15 +4,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jwcen/mars/pkg/ginx/middlewares/ratelimit"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jwcen/mars/internal/apiserver/handler"
 	"github.com/jwcen/mars/internal/apiserver/handler/middleware"
+	"github.com/jwcen/mars/pkg/ginx/middlewares/ratelimit"
 	"github.com/redis/go-redis/v9"
 )
 
-func InitGinEngine(mdls []gin.HandlerFunc, userHdl *handler.UserHandler) *gin.Engine {
+func InitGinEngine(mdls []gin.HandlerFunc,
+	userHdl *handler.UserHandler,
+	articleHdl *handler.ArticleHandler) *gin.Engine {
+	
 	server := gin.Default()
 	server.Use(gin.Recovery())
 	server.Use(gin.Logger())
@@ -20,6 +23,7 @@ func InitGinEngine(mdls []gin.HandlerFunc, userHdl *handler.UserHandler) *gin.En
 	server.Use(mdls...)
 
 	userHdl.RegisterRoutes(server)
+	articleHdl.RegisterRoutes(server)
 	return server
 }
 

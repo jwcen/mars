@@ -1,7 +1,7 @@
 //go:build wireinject
 // +build wireinject
 
-package main
+package startup
 
 import (
 	"github.com/gin-gonic/gin"
@@ -15,25 +15,40 @@ import (
 	"github.com/jwcen/mars/ioc"
 )
 
+var thirdProvider = wire.NewSet(InitRedis, InitTestDB)
+var userSvcProvider = wire.NewSet(
+	dao.NewUserDao,
+	cache.NewRedisUserCache,
+	repository.NewUserInfoRepository,
+	service.NewUserService)
+
 func InitWebServer() *gin.Engine {
 	wire.Build(
 		ioc.InitGinEngine,
 		ioc.InitMiddlewares,
 
-		ioc.InitDB,
-		ioc.InitRedis,
+		thirdProvider,
+		userSvcProvider,
 
-		dao.NewUserDao,
-
-		cache.NewRedisUserCache,
-
-		repository.NewUserInfoRepository,
-
-		service.NewUserService,
+		dao.NewArticleDao,
+		repository.NewArticleRepository,
+		service.NewArticleService,
 
 		ijwt.NewRedisJWTHandler,
 		handler.NewUserHandler,
+		handler.NewArticleHandler,
 	)
 
 	return new(gin.Engine)
+}
+
+func InitArticleHandler() *handler.ArticleHandler {
+	wire.Build(
+		thirdProvider,
+		dao.NewArticleDao,
+		repository.NewArticleRepository,
+		service.NewArticleService,
+		handler.NewArticleHandler,
+	)
+	return &handler.ArticleHandler{}
 }

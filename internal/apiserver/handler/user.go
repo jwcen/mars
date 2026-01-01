@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"log"
 	"log/slog"
 	"net/http"
 
@@ -126,6 +127,7 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 	}
 
 	if err = u.SetLoginToken(ctx, user.Id); err != nil {
+		log.Printf("op=Login||err=%v", err)
 		ctx.JSON(http.StatusOK, Result{
 			Code: 5,
 			Msg:  "系统错误",
@@ -155,7 +157,7 @@ func (u *UserHandler) Logout(ctx *gin.Context) {
 
 func (u *UserHandler) Profile(ctx *gin.Context) {
 	// TODO
-	c, _ := ctx.Get("users")
+	c, _ := ctx.Get("claims")
 	claim, ok := c.(ijwt.UserClaims)
 	if !ok {
 		// 你可以考虑监控住这里

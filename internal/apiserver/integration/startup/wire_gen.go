@@ -4,10 +4,11 @@
 //go:build !wireinject
 // +build !wireinject
 
-package main
+package startup
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/wire"
 	"github.com/jwcen/mars/internal/apiserver/handler"
 	"github.com/jwcen/mars/internal/apiserver/handler/jwt"
 	"github.com/jwcen/mars/internal/apiserver/repository"
@@ -20,15 +21,34 @@ import (
 // Injectors from wire.go:
 
 func InitWebServer() *gin.Engine {
-	cmdable := ioc.InitRedis()
+	cmdable := InitRedis()
 	v := ioc.InitMiddlewares(cmdable)
-	db := ioc.InitDB()
-	userDao := dao.NewUserDao(db)
+	gormDB := InitTestDB()
+	userDao := dao.NewUserDao(gormDB)
 	userCache := cache.NewRedisUserCache(cmdable)
 	userRepository := repository.NewUserInfoRepository(userDao, userCache)
 	userAndService := service.NewUserService(userRepository)
 	jwtHandler := jwt.NewRedisJWTHandler(cmdable)
 	userHandler := handler.NewUserHandler(userAndService, jwtHandler)
-	engine := ioc.InitGinEngine(v, userHandler)
+	articleDao := dao.NewArticleDao(gormDB)
+	articleRepository := repository.NewArticleRepository(articleDao)
+	articleService := service.NewArticleService(articleRepository)
+	articleHandler := handler.NewArticleHandler(articleService)
+	engine := ioc.InitGinEngine(v, userHandler, articleHandler)
 	return engine
 }
+
+func InitArticleHandler() *handler.ArticleHandler {
+	gormDB := InitTestDB()
+	articleDao := dao.NewArticleDao(gormDB)
+	articleRepository := repository.NewArticleRepository(articleDao)
+	articleService := service.NewArticleService(articleRepository)
+	articleHandler := handler.NewArticleHandler(articleService)
+	return articleHandler
+}
+
+// wire.go:
+
+var thirdProvider = wire.NewSet(InitRedis, InitTestDB)
+
+var userSvcProvider = wire.NewSet(dao.NewUserDao, cache.NewRedisUserCache, repository.NewUserInfoRepository, service.NewUserService)
