@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/jwcen/mars/internal/apiserver/repository/model"
@@ -32,11 +33,16 @@ func (dao *articleDao) Insert(ctx context.Context, article model.ArticleM) (int6
 }
 
 func (dao *articleDao) UpdateById(ctx context.Context, article model.ArticleM) error {
-	err := dao.db.WithContext(ctx).Model(&model.ArticleM{}).Where("id = ?", article.Id).
+	res := dao.db.WithContext(ctx).
+		Model(&model.ArticleM{}).
+		Where("id = ? AND author_id = ?", article.Id, article.AuthorId).
 		Updates(map[string]any{
 			"title":      article.Title,
 			"content":    article.Content,
 			"updated_at": time.Now(),
-		}).Error
-	return err
+		})
+	if res.RowsAffected == 0 {
+		return errors.New("更新失败，文章不存在或不是作者")
+	}
+	return res.Error
 }
