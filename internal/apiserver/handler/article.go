@@ -22,6 +22,7 @@ func NewArticleHandler(svc service.ArticleService) *ArticleHandler {
 
 func (h *ArticleHandler) Edit(ctx *gin.Context) {
 	type Req struct {
+		Id      int64  `json:"id"`
 		Title   string `json:"title"`
 		Content string `json:"content"`
 	}
@@ -43,6 +44,7 @@ func (h *ArticleHandler) Edit(ctx *gin.Context) {
 		return
 	}
 	article := domain.Article{
+		Id:      req.Id,
 		Title:   req.Title,
 		Content: req.Content,
 		Author: domain.Author{

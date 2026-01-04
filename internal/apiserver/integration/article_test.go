@@ -21,9 +21,11 @@ type ArticleTestSuite struct {
 	suite.Suite
 	server *gin.Engine
 	db     *gorm.DB
+	now    time.Time
 }
 
 func (s *ArticleTestSuite) SetupSuite() {
+	s.now = time.Now()
 	s.server = gin.Default()
 	s.server.Use(func(ctx *gin.Context) {
 		ctx.Set("claims", &ijwt.UserClaims{
@@ -88,9 +90,56 @@ func (s *ArticleTestSuite) Test_EditArticle() {
 				}, dbArt)
 			},
 		},
+		{
+			name: "编辑文章成功",
+			art: Article{
+				Id:      1,
+				Title:   "test2",
+				Content: "test2",
+			},
+			wantCode: http.StatusOK,
+			wantResult: Result[int64]{
+				Code: 0,
+				Msg:  "Success",
+				Data: 1,
+			},
+			before: func(t *testing.T) {
+				// 提前准备数据
+				article := model.ArticleM{
+					Title:     "test111",
+					Content:   "test111",
+					AuthorId:  123,
+					CreatedAt: s.now,
+					UpdatedAt: s.now,
+				}
+				err := s.db.Create(&article).Error
+
+				assert.NoError(t, err)
+				t.Log("提前创建完成")
+			},
+			after: func(t *testing.T) {
+				// check article in db
+				var dbArt model.ArticleM
+				err := s.db.Where("id = ?", 1).First(&dbArt).Error
+				assert.NoError(t, err)
+				assert.True(t, dbArt.UpdatedAt != time.Time{})
+				assert.True(t, dbArt.CreatedAt != time.Time{})
+
+				dbArt.UpdatedAt = time.Time{}
+				dbArt.CreatedAt = s.now
+
+				assert.Equal(t, model.ArticleM{
+					Id:        1,
+					Title:     "test2",
+					Content:   "test2",
+					AuthorId:  123,
+					CreatedAt: s.now,
+				}, dbArt)
+			},
+		},
 	}
 
-	for _, tc := range testCases {
+	for _, tc := range testCases[1:] {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.before(t)
 			reqBody, err := json.Marshal(tc.art)
@@ -120,6 +169,7 @@ func Test_ArticleTestSuite(t *testing.T) {
 }
 
 type Article struct {
+	Id      int64  `json:"id"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
 }

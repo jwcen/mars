@@ -10,6 +10,7 @@ import (
 
 type ArticleRepository interface {
 	Create(ctx context.Context, article domain.Article) (int64, error)
+	UpdateById(ctx context.Context, article domain.Article) error
 }
 
 type articleRepository struct {
@@ -24,6 +25,15 @@ func NewArticleRepository(dao dao.ArticleDao) ArticleRepository {
 
 func (repo *articleRepository) Create(ctx context.Context, article domain.Article) (int64, error) {
 	return repo.dao.Insert(ctx, model.ArticleM{
+		Title:    article.Title,
+		Content:  article.Content,
+		AuthorId: article.Author.Id,
+	})
+}
+
+func (repo *articleRepository) UpdateById(ctx context.Context, article domain.Article) error {
+	return repo.dao.UpdateById(ctx, model.ArticleM{
+		Id:       article.Id,
 		Title:    article.Title,
 		Content:  article.Content,
 		AuthorId: article.Author.Id,
